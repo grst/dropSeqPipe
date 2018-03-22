@@ -110,7 +110,7 @@ rule bead_errors_metrics:
 		summary='logs/{sample}_synthesis_stats_summary.txt',
 		barcodes=lambda wildcards: int(samples.loc[wildcards.sample,'expected_cells']) * 2,
 		dropseq_wrapper=config['LOCAL']['dropseq-wrapper'],
-		memory =config['LOCAL']['memory'],
+		memory=config['LOCAL']['memory'],
 		SmartAdapter=config['FILTER']['5-prime-smart-adapter'],
 		temp_directory=config['LOCAL']['temp-directory']
 	shell:

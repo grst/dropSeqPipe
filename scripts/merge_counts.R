@@ -12,8 +12,8 @@ merge.all <- function(x, y) {
   merge(x, y, all=TRUE, by="GENE")
 }
 
-read_counts <- Reduce(merge.all, read_list)
-read_counts[is.na(read_counts)] <- 0
+read_counts = Reduce(merge.all, read_list)
+read_counts[is.na(read_counts)] = 0
 rownames(read_counts) = read_counts[,1]
 read_counts = read_counts[,-1]
 

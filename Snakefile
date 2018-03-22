@@ -42,7 +42,6 @@ rule all:
         'reports/fastqc_barcodes.html',
         'reports/fastqc_reads_data/multiqc_general_stats.txt',
         #filter
-        expand('data/{sample}_filtered.fastq.gz', sample=samples.index),
         expand('plots/{sample}_polya_trimmed.pdf', sample=samples.index),
         expand('plots/{sample}_start_trim.pdf', sample=samples.index),
         expand('plots/{sample}_CELL_dropped.pdf', sample=samples.index),
@@ -50,7 +49,6 @@ rule all:
         'plots/BC_drop.pdf',
         'reports/filter.html',
         #mapping
-        expand('data/{sample}_final.bam', sample=samples.index),
         expand('logs/{sample}_hist_out_cell.txt', sample=samples.index),
         expand('plots/{sample}_knee_plot.pdf', sample=samples.index),
         'reports/star.html',
@@ -79,7 +77,6 @@ rule qc:
 
 rule filter:
     input:
-        expand('data/{sample}_filtered.fastq.gz', sample=samples.index),
         expand('plots/{sample}_polya_trimmed.pdf', sample=samples.index),
         expand('plots/{sample}_start_trim.pdf', sample=samples.index),
         expand('plots/{sample}_CELL_dropped.pdf', sample=samples.index),
@@ -89,8 +86,6 @@ rule filter:
         
 rule map:
     input:  
-        expand('data/{sample}_final.bam', sample=samples.index),
-        expand('logs/{sample}_hist_out_cell.txt', sample=samples.index),
         expand('plots/{sample}_knee_plot.pdf', sample=samples.index),
         'reports/star.html',
         'plots/yield.pdf'
