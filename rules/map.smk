@@ -1,10 +1,10 @@
 """Align the data with STAR."""
 
 ruleorder: plot_knee_plot_whitelist > plot_knee_plot
-
+ruleorder: rescue_barcodes > mv_bam
 
 #Which rules will be run on the host computer and not sent to nodes
-localrules: multiqc_star, plot_yield, plot_knee_plot, plot_knee_plot_whitelist
+localrules: multiqc_star, plot_yield, plot_knee_plot, plot_knee_plot_whitelist, find_cell_neighbours, plot_rescued_knee_plot_whitelist, rescue_barcodes
 
 
 rule STAR_align:
@@ -106,7 +106,7 @@ rule bead_errors_metrics:
 	input:
 		'data/{sample}_gene_exon_tagged.bam'
 	output:
-		'data/{sample}_final.bam'
+		temp('data/{sample}_error_corrected.bam')
 	params:
 		out_stats='logs/{sample}_synthesis_stats.txt',
 		summary='logs/{sample}_synthesis_stats_summary.txt',
@@ -127,7 +127,7 @@ rule bead_errors_metrics:
 
 rule bam_hist:
 	input:
-		'data/{sample}_final.bam'
+		'data/{sample}_error_corrected.bam'
 	params:
 		dropseq_wrapper=config['LOCAL']['dropseq-wrapper'],
 		memory=config['LOCAL']['memory'],
@@ -141,6 +141,52 @@ rule bam_hist:
 		READ_QUALITY=10\
 		O={output}
 		"""
+
+rule find_cell_neighbours:
+	input:
+		reads_per_barcode = 'logs/{sample}_hist_out_cell.txt',
+		reference = 'barcodes.csv'
+	output:
+		'logs/{sample}_cell_barcode_mapping.tsv'
+	conda: '../envs/plots.yaml'
+	script:
+		'../scripts/rescue_cell_barcodes.R'
+
+
+rule rescue_barcodes:
+	input:
+		data = 'data/{sample}_error_corrected.bam',
+		mapping = 'logs/{sample}_cell_barcode_mapping.tsv'
+	output:
+		'data/{sample}_final.bam'
+	conda: '../envs/pysam.yaml'
+	script:
+		'../scripts/rescue_barcodes.py'
+
+
+rule bam_hist_rescued:
+	input:
+		'data/{sample}_final.bam'
+	params:
+		dropseq_wrapper=config['LOCAL']['dropseq-wrapper'],
+		memory=config['LOCAL']['memory'],
+		temp_directory=config['LOCAL']['temp-directory']
+	output:
+		'logs/{sample}_hist_out_cell_rescued.txt'
+	shell:
+		"""{params.dropseq_wrapper} -p BAMTagHistogram -m {params.memory} -t {params.temp_directory}\
+		TAG=XC\
+		I={input}\
+		READ_QUALITY=10\
+		O={output}
+		"""
+rule mv_bam:
+	input:
+		'data/{sample}_error_corrected.bam'
+	output:
+		'data/{sample}_final.bam'
+	shell:
+		"""mv {input} {output}"""
 
 rule plot_yield:
 	input:
@@ -185,5 +231,18 @@ rule plot_knee_plot_whitelist:
 	conda: '../envs/plots.yaml'
 	output:
 		pdf='plots/{sample}_knee_plot.pdf'
+	script:
+		'../scripts/plot_knee_plot.R'
+
+rule plot_rescued_knee_plot_whitelist:
+	input:
+		data='logs/{sample}_hist_out_cell_rescued.txt',
+		barcodes='barcodes.csv'
+	params: 
+		cells=lambda wildcards: samples.loc[wildcards.sample,'expected_cells']
+	conda: '../envs/plots.yaml'
+	output:
+		pdf='plots/{sample}_rescued_knee_plot.pdf'
+	priority: 1
 	script:
 		'../scripts/plot_knee_plot.R'

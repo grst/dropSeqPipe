@@ -54,6 +54,7 @@ rule all:
         expand('data/{sample}_final.bam', sample=samples.index),
         expand('logs/{sample}_hist_out_cell.txt', sample=samples.index),
         expand('plots/{sample}_knee_plot.pdf', sample=samples.index),
+        expand('plots/{sample}_rescued_knee_plot.pdf', sample=samples.index),
         'reports/star.html',
         'plots/yield.pdf',
         #extract
@@ -93,6 +94,7 @@ rule map:
         expand('data/{sample}_final.bam', sample=samples.index),
         expand('logs/{sample}_hist_out_cell.txt', sample=samples.index),
         expand('plots/{sample}_knee_plot.pdf', sample=samples.index),
+        expand('plots/{sample}_rescued_knee_plot.pdf', sample=samples.index),
         'reports/star.html',
         'plots/yield.pdf'
         

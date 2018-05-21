@@ -250,7 +250,7 @@ rule plot_BC_drop:
 		min_UMI_quality=config['FILTER']['UMI-barcode']['min-quality'],
 		sample_names=lambda wildcards: samples.index,
 		batches=lambda wildcards: samples.loc[samples.index, 'batch']
-		
+	priority: 1
 	conda: '../envs/plots.yaml'
 	output:
 		pdf='plots/BC_drop.pdf'
