@@ -31,7 +31,7 @@ rule STAR_align:
 				config['MAPPING']['STAR']['outFilterMatchNminOverLread'],
 				config['MAPPING']['STAR']['outFilterScoreMinOverLread'],),
 		index=lambda wildcards: star_index_prefix + '_' + str(samples.loc[wildcards.sample,'read_length']) + '/'
-	threads: 24
+	threads: 8
 	wrapper:
 		"0.22.0/bio/star/align"
 
@@ -143,7 +143,7 @@ rule bam_hist:
 		READ_QUALITY=10\
 		O={output}
 		"""
-		
+
 
 rule plot_yield:
 	input:

@@ -25,10 +25,10 @@ rule cutadapt_R1:
         extra_params=config['FILTER']['cutadapt']['R1']['extra-params'],
         max_n=config['FILTER']['cutadapt']['R1']['maximum-Ns'],
         barcode_quality=config['FILTER']['cutadapt']['R1']['quality-filter']
-    threads: 10
+    threads: 5
     log:
         qc="logs/cutadapt/{sample}_R1.qc.txt"
-    conda: '../envs/cutadapt.yaml' 
+    conda: '../envs/cutadapt.yaml'
     shell:
         """cutadapt\
         --max-n {params.max_n}\
@@ -53,10 +53,10 @@ rule cutadapt_R2:
         read_quality=config['FILTER']['cutadapt']['R2']['quality-filter'],
         minimum_length=config['FILTER']['cutadapt']['R2']['minimum-length'],
         adapters_minimum_overlap=config['FILTER']['cutadapt']['R2']['minimum-adapters-overlap'],
-    threads: 10
+    threads: 5
     log:
         qc="logs/cutadapt/{sample}_R2.qc.txt"
-    conda: '../envs/cutadapt.yaml' 
+    conda: '../envs/cutadapt.yaml'
     shell:
         """cutadapt\
         -a file:{input.adapters}\
@@ -91,7 +91,7 @@ rule repair:
     params:
         memory='{}g'.format(int(config['LOCAL']['memory'].rstrip('g')) * 10)
     conda: '../envs/bbmap.yaml'
-    threads: 28
+    threads: 6
     shell:
         """repair.sh -Xmx{params.memory} in={input.R1} in2={input.R2} out1={output.R1} out2={output.R2} repair=t threads={threads} 2> {log}"""
 
